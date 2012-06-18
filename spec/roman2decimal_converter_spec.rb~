@@ -1,9 +1,0 @@
-describe Roman do
-
-	it "should return 1 when converting I" do
-		roman = Roman.new("I")
-		arabic = roman.to_arabic
-		arabic.should == 1
-	end
-
-end
