@@ -1,0 +1,44 @@
+abort "Please use Ruby 1.9 to run the tests!" if RUBY_VERSION !~ /^1\.9/
+
+require 'bundler/setup'
+
+def pipeline
+  require 'rake-pipeline'
+  Rake::Pipeline::Project.new('Assetfile')
+end
+
+desc 'Build the project with rake pipeline'
+task :dist do
+  puts 'Building project ...'
+  pipeline.invoke
+  puts "Done"
+end
+
+desc "Run JavaScript tests with phantomjs"
+task :test do
+  unless system("which phantomjs > /dev/null 2>&1")
+   abort "PhantomJS is not installed. Download from http://phantomjs.org"
+  end
+
+  system 'rake dist'
+
+  require "colored"
+
+  cmd = "phantomjs static/qunit/run-qunit.js"
+  cmd << " \"file://localhost#{File.dirname(__FILE__)}/static/index.html\""
+
+  system cmd
+
+  if $?.success?
+    puts "Tests Passed".green
+  else
+    puts "Tests Failed".red
+  end
+end
+
+desc "Autorun tests (Mac OS X only)"
+task :autotest do
+  system("kicker -e 'rake test' .")
+end
+
+task default: :test
